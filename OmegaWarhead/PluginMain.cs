@@ -36,7 +36,7 @@ namespace OmegaWarhead
 
         public override void Disable()
         {
-            WarheadEvents.Detonated -= (WarheadDetonatedEventArgs ev) => { if (!OmegaWarhead.OmegaActivated) Timing.RunCoroutine(ForceEnd()); };
+            WarheadEvents.Detonated -= (WarheadDetonatedEventArgs ev) => { if (!OmegaWarhead.OmegaActivated) coroutine = Timing.RunCoroutine(ForceEnd()); };
             ServerEvents.RoundRestarted -= () => OmegaWarhead.StopOmega();
             ServerEvents.RoundRestarted -= Music.OnRestartingRound;
             PlayerEvents.InteractingScp330 -= OnPickingScp330;
@@ -46,7 +46,7 @@ namespace OmegaWarhead
 
         public override void Enable()
         {
-            WarheadEvents.Detonated += (WarheadDetonatedEventArgs ev) => { if (!OmegaWarhead.OmegaActivated) Timing.RunCoroutine(ForceEnd()); };
+            WarheadEvents.Detonated += (WarheadDetonatedEventArgs ev) => { if (!OmegaWarhead.OmegaActivated) coroutine = Timing.RunCoroutine(ForceEnd()); };
             WarheadEvents.Starting += OnDeadmanActivating;
             ServerEvents.RoundRestarted += () => OmegaWarhead.StopOmega();
             ServerEvents.RoundRestarted += Music.OnRestartingRound;
@@ -257,7 +257,7 @@ namespace OmegaWarhead
                     door.Lock(Interactables.Interobjects.DoorUtils.DoorLockReason.Warhead, true);
                 }
             }
-            yield return Timing.WaitForSeconds(38);
+            yield return Timing.WaitForSeconds(30);
             Server.SendBroadcast("撤离直升机将在12s后到达", 10, shouldClearPrevious: true);
             WaveManager.TryGet<NtfSpawnWave>(out var wave);
             WaveUpdateMessage.ServerSendUpdate(wave, UpdateMessageFlags.Trigger);
@@ -266,7 +266,7 @@ namespace OmegaWarhead
                           where Vector3.Distance(p.Position, new Vector3(126, 295, -44)) <= 8
                           select p);
             Helikopter.ForEach(p => { p.EnableEffect<Flashed>(1, 15); p.EnableEffect<Ensnared>(1, 15); p.IsGodModeEnabled = true; });
-            yield return Timing.WaitForSeconds(10);
+            yield return Timing.WaitForSeconds(16);
             Shelted.AddRange(from p in Player.ReadyList
                              where p.Room?.Name == MapGeneration.RoomName.EzEvacShelter
                              select p);
